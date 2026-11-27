@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{{ PRODUCT_NAME }}}</title>
+  <style>
+    html, body { margin: 0; height: 100%; overflow: hidden; background: #d9d7d0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+    #unity-canvas { width: 100%; height: 100%; display: block; background: #d9d7d0; outline: none; }
+    #loading { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; color: #34332f; }
+    #loading h1 { margin: 0; font-size: 20px; font-weight: 600; letter-spacing: 0.01em; }
+    #bar { width: 260px; height: 6px; background: #bdbab2; border-radius: 3px; overflow: hidden; }
+    #fill { height: 100%; width: 100%; background: #2f6b4f; transform: scaleX(0); transform-origin: left; transition: transform 120ms ease-out; }
+    #help { position: absolute; left: 12px; bottom: 12px; padding: 8px 12px; border-radius: 8px; background: rgba(18, 20, 22, 0.72); color: #f1f0ec; font-size: 12px; line-height: 1.6; max-width: calc(100% - 48px); }
+    #help kbd { font: inherit; padding: 0 4px; border-radius: 3px; background: rgba(255, 255, 255, 0.16); }
+    #error { display: none; position: absolute; inset: 0; align-items: center; justify-content: center; padding: 24px; text-align: center; color: #7a1f17; }
+  </style>
+</head>
+<body>
+  <canvas id="unity-canvas" tabindex="-1" aria-label="Rainlight Square, an interactive miniature city"></canvas>
+  <div id="loading" role="status" aria-live="polite">
+    <h1>Rainlight Square</h1>
+    <div id="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="fill"></div></div>
+  </div>
+  <div id="help">Drag to pan · Right-drag or <kbd>Ctrl</kbd>/<kbd>⌘</kbd>-drag to orbit · Scroll to zoom · <kbd>W A S D</kbd> move · <kbd>Q</kbd>/<kbd>E</kbd> rotate · <kbd>1</kbd>–<kbd>4</kbd> time of day · <kbd>T</kbd> pause time · <kbd>R</kbd> reset</div>
+  <div id="error" role="alert"></div>
+  <script src="Build/{{{ LOADER_FILENAME }}}"></script>
+  <script>
+    const canvas = document.querySelector("#unity-canvas");
+    canvas.addEventListener("contextmenu", (e) => e.preventDefault());
+    const fill = document.querySelector("#fill");
+    const bar = document.querySelector("#bar");
+    createUnityInstance(canvas, {
+      dataUrl: "Build/{{{ DATA_FILENAME }}}",
+      frameworkUrl: "Build/{{{ FRAMEWORK_FILENAME }}}",
+#if USE_THREADS
+      workerUrl: "Build/{{{ WORKER_FILENAME }}}",
+#endif
+#if USE_WASM
+      codeUrl: "Build/{{{ CODE_FILENAME }}}",
+#endif
+#if MEMORY_FILENAME
+      memoryUrl: "Build/{{{ MEMORY_FILENAME }}}",
+#endif
+#if SYMBOLS_FILENAME
+      symbolsUrl: "Build/{{{ SYMBOLS_FILENAME }}}",
+#endif
+      streamingAssetsUrl: "StreamingAssets",
+      companyName: {{{ JSON.stringify(COMPANY_NAME) }}},
+      productName: {{{ JSON.stringify(PRODUCT_NAME) }}},
+      productVersion: {{{ JSON.stringify(PRODUCT_VERSION) }}},
+    }, (progress) => {
+      const pct = Math.round(progress * 100);
+      fill.style.transform = "scaleX(" + progress + ")";
+      bar.setAttribute("aria-valuenow", String(pct));
+    }).then(() => {
+      document.querySelector("#loading").remove();
+      canvas.focus();
+    }).catch((message) => {
+      const error = document.querySelector("#error");
+      error.textContent = "The city couldn't start: " + message;
+      error.style.display = "flex";
+      document.querySelector("#loading").remove();
+    });
+  </script>
+</body>
+</html>
