@@ -1,0 +1,5 @@
+Assets/CitiVibe/Generated/**/*.asset filter=lfs diff=lfs merge=lfs -text
+Assets/CitiVibe/Generated/*.asset filter=lfs diff=lfs merge=lfs -text
+Assets/CitiVibe/Generated/**/*.png filter=lfs diff=lfs merge=lfs -text
+Assets/CitiVibe/Generated/*.exr filter=lfs diff=lfs merge=lfs -text
+Assets/CitiVibe/Models/*.fbx filter=lfs diff=lfs merge=lfs -text
